@@ -1,12 +1,10 @@
 package com.demo.pong;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-
-
 
 @RestController
 public class PongController {
@@ -21,9 +19,8 @@ public class PongController {
     public Mono<String> pong() {
         if (rateLimiter.tryAcquire()) {
             return Mono.just("World");
-        } else {
-            return Mono.delay(Duration.ofSeconds(1))
-                    .then(Mono.error(new TooManyRequestsException()));
         }
+
+        return Mono.error(new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too Many Requests"));
     }
 }

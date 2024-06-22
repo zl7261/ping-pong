@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +34,9 @@ public class PongServiceApplicationTests {
         assertEquals("World", response1.block());
 
         // Second request within the same second should be throttled
-        Mono<String> response2 = webClient.get().uri("/pong").retrieve().bodyToMono(String.class);
-        assertThrows(Exception.class, response2::block);
+        WebClientResponseException exception = assertThrows(WebClientResponseException.class, () -> webClient.get().uri("/pong").retrieve().bodyToMono(String.class).block());
+
+        // Verify that the status code is 429
+        assertEquals(429, exception.getStatusCode().value());
     }
 }
