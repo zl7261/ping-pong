@@ -39,6 +39,8 @@ public class PingServiceApplication {
                         .doOnNext(response -> logResult("Request sent & Pong Respond: " + response))
                         .doOnError(error -> logResult("Request send & Pong throttled it: " + error.getMessage()))
                         .subscribe();
+                // keep file lock
+                Thread.sleep(1000);
             } else {
                 logResult("Request not sent as being rate limited");
             }
